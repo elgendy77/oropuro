@@ -14,6 +14,7 @@ import { Footer } from './components/Footer';
 import { TopUrgencyBanner } from './components/TopUrgencyBanner';
 import { SalesNotificationToast } from './components/SalesNotificationToast';
 import { FloatingWhatsAppAssistant } from './components/FloatingWhatsAppAssistant';
+import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 
 const MainContent: React.FC = () => {
@@ -186,6 +187,7 @@ export function App() {
     <ErrorBoundary>
       <StoreProvider>
         <MainContent />
+        <Analytics />
       </StoreProvider>
     </ErrorBoundary>
   );
