@@ -208,29 +208,99 @@ export const AdminDashboard: React.FC = () => {
   const [webhookTestStatus, setWebhookTestStatus] = useState<string | null>(null);
 
   const handleTestTelegram = async () => {
-    const token = settingsForm.telegramBotToken?.trim();
-    const chat = settingsForm.telegramChatId?.trim();
-    if (!token || !chat) {
+    const rawToken = settingsForm.telegramBotToken?.trim() || '';
+    const rawChat = settingsForm.telegramChatId?.trim() || '';
+
+    if (!rawToken || !rawChat) {
       setTelegramTestStatus('⚠️ يرجى إدخال توكن البوت والـ Chat ID أولاً.');
       return;
     }
+
+    const cleanToken = rawToken.replace(/^bot/i, '').trim();
+    const cleanChat = rawChat.trim();
+
+    // Check if user accidentally entered @username instead of numeric chat ID
+    if (cleanChat.startsWith('@')) {
+      setTelegramTestStatus('⚠️ تنبيه: لقد أدخلت اسم مستخدم بدلاً من رقم الـ Chat ID. المحادثات الخاصة تتطلب رقم الآيدي (مثال: 123456789). احصل عليه من بوت @userinfobot.');
+      return;
+    }
+
     setTestingTelegram(true);
-    setTelegramTestStatus(null);
+    setTelegramTestStatus('جاري فحص الاتصال بالبوت...');
+
     try {
-      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chat,
-          text: `👑 *إشعار تجريبي ناجح من متجر ORO PURO للعطور!* 👑\n\nتم ربط لوحة التحكم بحسابك في تليجرام بنجاح 🎉\nمن الآن، أي طلب جديد يؤكده العميل ستصلك رسالة فورية ببياناته هنا على هاتفك!`,
-          parse_mode: 'Markdown',
-        })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setTelegramTestStatus('✓ تم إرسال الإشعار بنجاح! تفقد تطبيق تليجرام على هاتفك الآن.');
+      // Step 1: Verify Bot Token via getMe (try direct, fallback to proxy)
+      let botUsername = '';
+      try {
+        const meRes = await fetch(`https://api.telegram.org/bot${cleanToken}/getMe`);
+        const meData = await meRes.json();
+        if (meData.ok) {
+          botUsername = meData.result?.username || '';
+        } else {
+          setTelegramTestStatus(`❌ توكن البوت غير صحيح (${meData.description || 'Unauthorized'}). تأكد من نسخه كاملاً من @BotFather دون زيادة أو نقصان.`);
+          setTestingTelegram(false);
+          return;
+        }
+      } catch {
+        // Direct fetch failed, try Vercel proxy
+        try {
+          const proxyMeRes = await fetch('/api/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: cleanToken, action: 'getMe' })
+          });
+          const proxyMeData = await proxyMeRes.json();
+          if (proxyMeData.ok) {
+            botUsername = proxyMeData.result?.username || '';
+          } else {
+            setTelegramTestStatus(`❌ توكن البوت غير صحيح (${proxyMeData.description || 'Unauthorized'}). تأكد من نسخه كاملاً من @BotFather.`);
+            setTestingTelegram(false);
+            return;
+          }
+        } catch (proxyErr: any) {
+          console.warn('Proxy getMe error:', proxyErr);
+        }
+      }
+
+      // Step 2: Send Test Message
+      const testMsg = `👑 إشعار تجريبي ناجح من متجر ORO PURO للعطور! 👑\n\nتم ربط لوحة التحكم بالبوت ${botUsername ? `@${botUsername}` : ''} بنجاح 🎉\nمن الآن، أي طلب جديد يؤكده العميل ستصلك رسالة فورية ببياناته هنا على هاتفك!`;
+
+      let sendResult: any = null;
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${cleanToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: cleanChat,
+            text: testMsg,
+          })
+        });
+        sendResult = await res.json();
+      } catch {
+        // If direct fetch fails (e.g. ISP blocked api.telegram.org), use proxy
+        const proxyRes = await fetch('/api/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: cleanToken,
+            chat_id: cleanChat,
+            text: testMsg,
+          })
+        });
+        sendResult = await proxyRes.json();
+      }
+
+      if (sendResult?.ok) {
+        setTelegramTestStatus(`✓ تم إرسال الإشعار بنجاح ${botUsername ? `من البوت @${botUsername}` : ''}! تفقد تطبيق تليجرام على هاتفك الآن.`);
       } else {
-        setTelegramTestStatus(`❌ فشل الإرسال: ${data.description || 'تأكد من بدء المحادثة مع البوت بالضغط على Start'}`);
+        const desc = (sendResult?.description || '').toLowerCase();
+        if (desc.includes('chat not found') || desc.includes('bot can\'t initiate') || desc.includes('blocked')) {
+          setTelegramTestStatus(
+            `❌ البوت سليم ${botUsername ? `(@${botUsername})` : ''} ولكن لم يتم تفعيل المحادثة معه بعد:\n1. اضغط على رابط البوت واضغط Start: https://t.me/${botUsername}\n2. تأكد أن معرف الشات (Chat ID) عبارة عن أرقام فقط من بوت @userinfobot.`
+          );
+        } else {
+          setTelegramTestStatus(`❌ فشل الإرسال من تليجرام: ${sendResult?.description || 'تأكد من بدء المحادثة مع البوت بالضغط على Start'}`);
+        }
       }
     } catch (e: any) {
       setTelegramTestStatus(`❌ حدث خطأ في الاتصال: ${e.message}`);

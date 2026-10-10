@@ -965,42 +965,56 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const chatId = settings.telegramChatId || settings.shippingRates?.telegramChatId;
     if (botToken && chatId && botToken.trim() && chatId.trim()) {
       try {
+        const cleanToken = botToken.trim().replace(/^bot/i, '');
+        const cleanChat = chatId.trim();
+
         const paymentLabel = 
           newOrder.paymentMethod === 'instapay' ? 'انستاباي (InstaPay)' :
           newOrder.paymentMethod === 'vodafone_cash' ? 'فودافون كاش (Vodafone Cash)' :
           'الدفع عند الاستلام (COD)';
 
         const itemsList = newOrder.items
-          .map((item, idx) => `▫️ *${idx + 1}. ${item.name}* (${item.selectedSize}) × ${item.quantity} ➔ ${(item.price * item.quantity).toLocaleString('ar-EG')} ج.م`)
+          .map((item, idx) => `▫️ ${idx + 1}. ${item.name} (${item.selectedSize}) × ${item.quantity} ➔ ${(item.price * item.quantity).toLocaleString('ar-EG')} ج.م`)
           .join('\n');
 
-        const messageText = `👑 *طلب جديد من متجر ORO PURO للعطور!* 👑
+        const messageText = `👑 طلب جديد من متجر ORO PURO للعطور! 👑
 ━━━━━━━━━━━━━━━
-🆔 *رقم الطلب:* \`#${newOrder.id}\`
-👤 *اسم العميل:* ${newOrder.customerName}
-📱 *رقم الهاتف:* \`${newOrder.phone}\`${newOrder.alternatePhone ? `\n📱 *هاتف بديل:* \`${newOrder.alternatePhone}\`` : ''}
-📍 *المحافظة:* ${newOrder.governorate}
-🏠 *العنوان:* ${newOrder.cityAddress}
-${newOrder.notes ? `📝 *ملاحظات التوصيل:* ${newOrder.notes}\n` : ''}━━━━━━━━━━━━━━━
-🛍️ *تفاصيل العطور المطلوبة:*
+🆔 رقم الطلب: #${newOrder.id}
+👤 اسم العميل: ${newOrder.customerName}
+📱 رقم الهاتف: ${newOrder.phone}${newOrder.alternatePhone ? `\n📱 هاتف بديل: ${newOrder.alternatePhone}` : ''}
+📍 المحافظة: ${newOrder.governorate}
+🏠 العنوان: ${newOrder.cityAddress}
+${newOrder.notes ? `📝 ملاحظات التوصيل: ${newOrder.notes}\n` : ''}━━━━━━━━━━━━━━━
+🛍️ تفاصيل العطور المطلوبة:
 ${itemsList}
 
 ━━━━━━━━━━━━━━━
-💰 *المجموع الفرعي:* ${newOrder.subtotal.toLocaleString('ar-EG')} ج.م
-🚚 *مصاريف الشحن:* ${newOrder.shippingFee === 0 ? 'مجاني 🎉' : `${newOrder.shippingFee.toLocaleString('ar-EG')} ج.م`}
-💎 *الإجمالي النهائي:* *${newOrder.total.toLocaleString('ar-EG')} ج.م*
-💳 *طريقة الدفع:* ${paymentLabel}
-⏰ *الوقت:* ${new Date().toLocaleDateString('ar-EG')} - ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+💰 المجموع الفرعي: ${newOrder.subtotal.toLocaleString('ar-EG')} ج.م
+🚚 مصاريف الشحن: ${newOrder.shippingFee === 0 ? 'مجاني 🎉' : `${newOrder.shippingFee.toLocaleString('ar-EG')} ج.م`}
+💎 الإجمالي النهائي: ${newOrder.total.toLocaleString('ar-EG')} ج.م
+💳 طريقة الدفع: ${paymentLabel}
+⏰ الوقت: ${new Date().toLocaleDateString('ar-EG')} - ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
 
-        fetch(`https://api.telegram.org/bot${botToken.trim()}/sendMessage`, {
+        // Send via direct Telegram API, with serverless proxy fallback
+        fetch(`https://api.telegram.org/bot${cleanToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: chatId.trim(),
+            chat_id: cleanChat,
             text: messageText,
-            parse_mode: 'Markdown',
           })
-        }).catch(err => console.warn('Telegram send notification error:', err));
+        }).catch(() => {
+          // Fallback to Vercel proxy
+          fetch('/api/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              token: cleanToken,
+              chat_id: cleanChat,
+              text: messageText,
+            })
+          }).catch(err => console.warn('Telegram proxy send error:', err));
+        });
       } catch (err) {
         console.warn('Telegram notification exception:', err);
       }
