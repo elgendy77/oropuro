@@ -42,7 +42,7 @@ export const AdminDashboard: React.FC = () => {
   } = useStore();
 
   // Multi-Admin Login State
-  const [loginUsername, setLoginUsername] = useState('admin');
+  const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginErrorMsg, setLoginErrorMsg] = useState('');
@@ -64,6 +64,7 @@ export const AdminDashboard: React.FC = () => {
     isActive: true,
   });
   const [showPasswordMap, setShowPasswordMap] = useState<Record<string, boolean>>({});
+  const [showAdminFormPass, setShowAdminFormPass] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'settings' | 'content' | 'admins'>('products');
 
@@ -72,6 +73,7 @@ export const AdminDashboard: React.FC = () => {
   const [productStockFilter, setProductStockFilter] = useState<'all' | 'in_stock' | 'sold_out'>('all');
   const [productGenderFilter, setProductGenderFilter] = useState<'all' | 'men' | 'women' | 'unisex'>('all');
   const [settingsStockSearch, setSettingsStockSearch] = useState('');
+  const [showSettingsPin, setShowSettingsPin] = useState(false);
 
   // Orders management, search, filters & spreadsheet export state
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
@@ -431,17 +433,17 @@ export const AdminDashboard: React.FC = () => {
   // Security Login Check (Username + Password / PIN)
   if (!isAdminAuthenticated) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FAF7F2]">
-        <div className="w-full max-w-md bg-white border border-[#E8E2D8] rounded-3xl p-8 shadow-xl text-center">
-          <div className="w-16 h-16 rounded-full bg-forest-50 border border-forest-200 text-forest-800 flex items-center justify-center mx-auto mb-4 shadow-sm">
+      <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FAF7F2] dark:bg-[#0A0D14] transition-colors">
+        <div className="w-full max-w-md bg-white dark:bg-[#121722] border border-[#E8E2D8] dark:border-[#1E2638] rounded-3xl p-8 shadow-xl text-center">
+          <div className="w-16 h-16 rounded-full bg-forest-50 dark:bg-gold-500/10 border border-forest-200 dark:border-gold-500/30 text-forest-800 dark:text-gold-400 flex items-center justify-center mx-auto mb-4 shadow-sm">
             <Lock className="w-8 h-8" />
           </div>
           
-          <h2 className="text-2xl font-black text-slate-900 mb-1">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">
             بوابة الإدارة والمشرفين
           </h2>
-          <p className="text-xs text-slate-500 mb-6 font-medium">
-            متجر أورو بورو | Oro Puro Fragrances
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 font-medium">
+            متجر أورو بورو | Oro Puro Parfums
           </p>
 
           <form
@@ -456,7 +458,7 @@ export const AdminDashboard: React.FC = () => {
             className="space-y-4 text-right"
           >
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 اسم المستخدم (Username)
               </label>
               <input
@@ -466,14 +468,15 @@ export const AdminDashboard: React.FC = () => {
                   setLoginUsername(e.target.value);
                   setLoginErrorMsg('');
                 }}
-                placeholder="مثال: admin أو اسم المستخدم الخاص بك"
-                className="w-full bg-[#FAF7F2] border border-slate-300 rounded-2xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-forest-700 focus:ring-2 focus:ring-forest-700/20 transition-all font-medium text-right"
+                placeholder="أدخل اسم المستخدم المصرح به..."
+                className="w-full bg-[#FAF7F2] dark:bg-[#1A2234] border border-slate-300 dark:border-[#2A364F] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-forest-700 dark:focus:border-gold-500 focus:ring-2 focus:ring-forest-700/20 transition-all font-medium text-right"
                 required
+                autoFocus
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 كلمة المرور أو رمز PIN السري
               </label>
               <div className="relative">
@@ -485,14 +488,13 @@ export const AdminDashboard: React.FC = () => {
                     setLoginErrorMsg('');
                   }}
                   placeholder="••••••••"
-                  className="w-full bg-[#FAF7F2] border border-slate-300 rounded-2xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-forest-700 focus:ring-2 focus:ring-forest-700/20 transition-all font-medium pl-10 text-right"
+                  className="w-full bg-[#FAF7F2] dark:bg-[#1A2234] border border-slate-300 dark:border-[#2A364F] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-forest-700 dark:focus:border-gold-500 focus:ring-2 focus:ring-forest-700/20 transition-all font-medium pl-10 text-right"
                   required
-                  autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setShowLoginPassword(!showLoginPassword)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1"
                 >
                   {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -500,28 +502,29 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             {loginErrorMsg && (
-              <p className="text-xs text-rose-600 font-bold bg-rose-50 border border-rose-200 rounded-xl p-2.5 text-center animate-pulse">
+              <p className="text-xs text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl p-2.5 text-center animate-pulse">
                 {loginErrorMsg}
               </p>
             )}
 
             <button
               type="submit"
-              className="w-full py-3.5 bg-forest-800 hover:bg-forest-900 text-white rounded-2xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 mt-2"
+              className="w-full py-3.5 bg-forest-800 hover:bg-forest-900 dark:bg-gold-500 dark:hover:bg-gold-600 text-white dark:text-slate-950 rounded-2xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 mt-2"
             >
               <KeyRound className="w-4 h-4" />
               <span>تسجيل الدخول إلى لوحة التحكم</span>
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col gap-2 text-xs text-slate-500 text-center">
-            <span className="text-[11px] text-slate-500">
-              حساب المالك الرئيسي: اسم المستخدم <strong className="text-slate-800">admin</strong> وكلمة المرور <strong className="text-slate-800">1234</strong>
-            </span>
+          <div className="mt-6 pt-5 border-t border-slate-100 dark:border-[#1E2638] flex flex-col gap-2 text-xs text-slate-500 dark:text-slate-400 text-center">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 rounded-xl py-2 px-3">
+              <Shield className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span>منطقة محميّة ومخصصة للإدارة والمشرفين المصرح لهم فقط</span>
+            </div>
             <button
               type="button"
               onClick={() => setActiveView('store')}
-              className="text-forest-800 hover:underline font-bold mt-1"
+              className="text-forest-800 dark:text-gold-400 hover:underline font-bold mt-2"
             >
               العودة لواجهة المتجر &larr;
             </button>
@@ -1878,18 +1881,30 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-forest-700" />
-                    <span>رمز PIN السري لدخول لوحة التحكم</span>
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={8}
-                    value={settingsForm.adminPin || '1234'}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, adminPin: e.target.value })}
-                    className="w-full bg-[#FAF7F2] border border-slate-300 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-forest-700"
-                    placeholder="1234"
-                  />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-slate-700 mb-0 flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-forest-700" />
+                      <span>رمز PIN السري لدخول لوحة التحكم</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowSettingsPin(!showSettingsPin)}
+                      className="text-slate-400 hover:text-slate-700 text-xs flex items-center gap-1 font-bold"
+                    >
+                      {showSettingsPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      <span className="text-[10px]">{showSettingsPin ? 'إخفاء' : 'إظهار'}</span>
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showSettingsPin ? 'text' : 'password'}
+                      maxLength={8}
+                      value={settingsForm.adminPin || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, adminPin: e.target.value })}
+                      className="w-full bg-[#FAF7F2] border border-slate-300 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-forest-700 tracking-wider"
+                      placeholder="••••••••"
+                    />
+                  </div>
                   <p className="text-[10px] text-slate-500 mt-1">
                     يمكنك تغيير هذا الرمز في أي وقت لحماية لوحة التحكم ومنع أي شخص من الدخول إليها.
                   </p>
@@ -2733,15 +2748,27 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">كلمة المرور للدخول *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="مثال: Pass@2026 أو 4567"
-                  value={adminFormData.password}
-                  onChange={(e) => setAdminFormData({ ...adminFormData, password: e.target.value })}
-                  className="w-full bg-[#FAF7F2] border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-forest-700 font-mono"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 mb-0">كلمة المرور للدخول *</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminFormPass(!showAdminFormPass)}
+                    className="text-slate-400 hover:text-slate-700 text-xs flex items-center gap-1 font-bold"
+                  >
+                    {showAdminFormPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    <span className="text-[10px]">{showAdminFormPass ? 'إخفاء' : 'إظهار'}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showAdminFormPass ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    value={adminFormData.password}
+                    onChange={(e) => setAdminFormData({ ...adminFormData, password: e.target.value })}
+                    className="w-full bg-[#FAF7F2] border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-forest-700 font-mono"
+                  />
+                </div>
               </div>
 
               <div>
