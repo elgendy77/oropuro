@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #FAF7F2;
+    color: #1E293B;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+  }
+}
+
+/* Custom Gold Gradient Text */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #B88E23 0%, #D4AF37 50%, #8E6C18 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Bright Luxury White Cards */
+.luxury-glass {
+  background: #FFFFFF;
+  border: 1px solid #EBE5DC;
+  box-shadow: 0 4px 20px -2px rgba(30, 41, 59, 0.04);
+}
+
+.luxury-glass:hover {
+  border-color: #D4AF37;
+  box-shadow: 0 10px 25px -5px rgba(184, 142, 35, 0.12);
+}
+
+/* Gold Button */
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #C59B27 100%);
+  color: #FFFFFF;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px -2px rgba(197, 155, 39, 0.35);
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #DFB943 0%, #B88E23 100%);
+  box-shadow: 0 6px 20px 0 rgba(197, 155, 39, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Emerald Green Button (Royal Harrods / Creed Luxury Vibe) */
+.btn-forest {
+  background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+  color: #FFFFFF;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px -2px rgba(6, 78, 59, 0.3);
+}
+
+.btn-forest:hover {
+  background: linear-gradient(135deg, #047857 0%, #065F46 100%);
+  box-shadow: 0 6px 20px 0 rgba(6, 78, 59, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Scrollbar for Light Theme */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAF7F2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DFD7CB;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
