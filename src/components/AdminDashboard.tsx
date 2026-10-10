@@ -201,6 +201,74 @@ export const AdminDashboard: React.FC = () => {
     setSettingsForm(settings);
   }, [settings]);
 
+  // Automation test states & handlers
+  const [testingTelegram, setTestingTelegram] = useState(false);
+  const [telegramTestStatus, setTelegramTestStatus] = useState<string | null>(null);
+  const [testingWebhook, setTestingWebhook] = useState(false);
+  const [webhookTestStatus, setWebhookTestStatus] = useState<string | null>(null);
+
+  const handleTestTelegram = async () => {
+    const token = settingsForm.telegramBotToken?.trim();
+    const chat = settingsForm.telegramChatId?.trim();
+    if (!token || !chat) {
+      setTelegramTestStatus('⚠️ يرجى إدخال توكن البوت والـ Chat ID أولاً.');
+      return;
+    }
+    setTestingTelegram(true);
+    setTelegramTestStatus(null);
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chat,
+          text: `👑 *إشعار تجريبي ناجح من متجر ORO PURO للعطور!* 👑\n\nتم ربط لوحة التحكم بحسابك في تليجرام بنجاح 🎉\nمن الآن، أي طلب جديد يؤكده العميل ستصلك رسالة فورية ببياناته هنا على هاتفك!`,
+          parse_mode: 'Markdown',
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setTelegramTestStatus('✓ تم إرسال الإشعار بنجاح! تفقد تطبيق تليجرام على هاتفك الآن.');
+      } else {
+        setTelegramTestStatus(`❌ فشل الإرسال: ${data.description || 'تأكد من بدء المحادثة مع البوت بالضغط على Start'}`);
+      }
+    } catch (e: any) {
+      setTelegramTestStatus(`❌ حدث خطأ في الاتصال: ${e.message}`);
+    } finally {
+      setTestingTelegram(false);
+    }
+  };
+
+  const handleTestWebhook = async () => {
+    const url = settingsForm.automationWebhookUrl?.trim();
+    if (!url || !url.startsWith('http')) {
+      setWebhookTestStatus('⚠️ يرجى إدخال رابط Webhook صالح يبدأ بـ https://');
+      return;
+    }
+    setTestingWebhook(true);
+    setWebhookTestStatus(null);
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'test_ping',
+          message: 'Oro Puro Parfums Webhook Test Successful!',
+          timestamp: new Date().toISOString()
+        })
+      });
+      if (res.ok) {
+        setWebhookTestStatus('✓ تم إرسال طلب الاختبار للـ Webhook بنجاح (Status 200)!');
+      } else {
+        setWebhookTestStatus(`⚠️ تم الاتصال ولكن السيرفر رد بكود (${res.status})`);
+      }
+    } catch (e: any) {
+      setWebhookTestStatus(`❌ حدث خطأ في إرسال الـ Webhook: ${e.message}`);
+    } finally {
+      setTestingWebhook(false);
+    }
+  };
+
   // Open modal for new product
   const handleOpenAddProduct = () => {
     setEditingProductId(null);
@@ -2034,51 +2102,149 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* SECTION: AI Automation & Notifications (Webhooks) */}
+            {/* SECTION: AI Automation & Notifications (Telegram & Webhooks) */}
             <div className="pt-6 border-t border-slate-200">
-              <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E8E2D8] space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="p-5 sm:p-6 rounded-3xl bg-[#FAF7F2] border border-[#E8E2D8] space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <h4 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-forest-700" />
-                      <span>الربط التلقائي والإشعارات الفورية (AI Automation & Webhooks)</span>
+                      <span>الربط التلقائي وإشعارات الطلبات الفورية (AI Automation & Alerts)</span>
                     </h4>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      اربط لوحة التحكم بأي نظام أوتوميشن ذكي (Make.com أو n8n أو Telegram Bot أو WhatsApp API) لتلقي إشعار فوري عند كل طلب جديد
+                      احصل على إشعار فوري على هاتفك عند قيام أي عميل بتأكيد طلبه مباشرة وبدون الحاجة لفتح المتجر
                     </p>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
-                    جاهز للربط ⚡
+                  <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
+                    نشط وجاهز للربط ⚡
                   </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    رابط الـ Webhook الخاص بنظام الأوتوميشن (Make / n8n / Zapier / Custom API)
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://hook.eu2.make.com/... أو https://n8n.example.com/webhook/..."
-                    value={settingsForm.automationWebhookUrl || ''}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, automationWebhookUrl: e.target.value })}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-mono text-left text-slate-900 focus:outline-none focus:border-forest-700"
-                    dir="ltr"
-                  />
-                  <div className="mt-2 text-[11px] text-slate-600 bg-white/80 p-3 rounded-xl border border-slate-200 space-y-1.5">
-                    <p className="font-bold text-forest-800 flex items-center gap-1">
-                      <span>💡 كيف يعمل الربط التلقائي؟</span>
-                    </p>
-                    <p>
-                      1. بمجرد قيام أي عميل بتأكيد طلبه، يظهر الطلب في <strong>لوحة التحكم</strong> وقاعدة البيانات فوراً دون تحويله إلى واتساب.
-                    </p>
-                    <p>
-                      2. إذا قمت بوضع رابط Webhook هنا، سيقوم النظام تلقائياً وبشكل فوري بإرسال بيانات الطلب (الاسم، الهاتف، المحافظة، العنوان، العطور المطلوبة، الإجمالي) إلى نظامك ليرسل لك إشعاراً على <strong>تليجرام أو واتساب</strong>.
-                    </p>
-                    <p>
-                      3. يمكنك أيضاً ربط قاعدة بيانات Supabase مباشرة من <strong>Database Webhooks</strong> على جدول <code>orders</code>.
-                    </p>
+                {/* OPTION 1: Direct Telegram Bot (Super Easy & Free) */}
+                <div className="bg-white p-4 sm:p-5 rounded-2xl border border-sky-200 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-sky-500 text-white flex items-center justify-center font-bold text-xs">
+                        TG
+                      </span>
+                      <div>
+                        <h5 className="text-xs sm:text-sm font-bold text-slate-900">
+                          الخيار 1: إشعارات تليجرام الفورية (الأسهل والأسرع - مجاني 100%)
+                        </h5>
+                        <p className="text-[10px] text-slate-500">
+                          يرسل لك تفاصيل الطلب كاملة فوراً في رسالة تليجرام خاصة أو لقناة العمل
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
+                      موصى به ⭐
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        توكن البوت (Bot Token) من @BotFather
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ..."
+                        value={settingsForm.telegramBotToken || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, telegramBotToken: e.target.value })}
+                        className="w-full bg-[#FAF7F2] border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-left text-slate-900 focus:outline-none focus:border-forest-700"
+                        dir="ltr"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        معرف الشات الخاص بك (Chat ID)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 123456789 أو -100xxxxxxxxxx"
+                        value={settingsForm.telegramChatId || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, telegramChatId: e.target.value })}
+                        className="w-full bg-[#FAF7F2] border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-left text-slate-900 focus:outline-none focus:border-forest-700"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <button
+                      type="button"
+                      disabled={testingTelegram}
+                      onClick={handleTestTelegram}
+                      className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+                    >
+                      <span>{testingTelegram ? 'جاري الإرسال...' : '🔔 تجربة إرسال إشعار تليجرام الآن'}</span>
+                    </button>
+                    {telegramTestStatus && (
+                      <span className={`text-[11px] font-bold ${telegramTestStatus.includes('✓') ? 'text-emerald-700' : 'text-rose-600'}`}>
+                        {telegramTestStatus}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 3-Step Guide */}
+                  <div className="bg-sky-50/60 p-3 rounded-xl border border-sky-100 text-[11px] text-slate-700 space-y-1">
+                    <p className="font-bold text-sky-900">📌 كيف تحصل على التوكن والـ Chat ID في دقيقة واحدة؟</p>
+                    <p>1. افتح تطبيق تليجرام، ابحث عن بوت <strong>@BotFather</strong> واضغط Start، ثم أرسل <code>/newbot</code> واختر اسماً ومعرفاً للبوت ليمنحك الـ <strong>API Token</strong>.</p>
+                    <p>2. افتح بوت <strong>@userinfobot</strong> في تليجرام واضغط Start ليعطيك رقم الـ <strong>Id</strong> الخاص بك.</p>
+                    <p>3. افتح البوت الذي أنشأته واضغط <strong>Start</strong> لمرة واحدة لتمكينه من مراسلتك، ثم اضغط زر "تجربة إرسال إشعار" هنا!</p>
                   </div>
                 </div>
+
+                {/* OPTION 2: Webhook Automation (Make.com, n8n, Zapier, WhatsApp) */}
+                <div className="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                        AI
+                      </span>
+                      <div>
+                        <h5 className="text-xs sm:text-sm font-bold text-slate-900">
+                          الخيار 2: رابط Webhook (لربط Make.com أو n8n أو إشعارات واتساب عبر API)
+                        </h5>
+                        <p className="text-[10px] text-slate-500">
+                          يرسل بيانات الطلب بصيغة JSON إلى أي أوتوميشن ذكي لإرسال رسائل واتساب أو تسجيلها في Google Sheets
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      رابط الـ Webhook (Webhook URL)
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://hook.eu2.make.com/... أو https://n8n.yourserver.com/webhook/..."
+                      value={settingsForm.automationWebhookUrl || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, automationWebhookUrl: e.target.value })}
+                      className="w-full bg-[#FAF7F2] border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-left text-slate-900 focus:outline-none focus:border-forest-700"
+                      dir="ltr"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <button
+                      type="button"
+                      disabled={testingWebhook}
+                      onClick={handleTestWebhook}
+                      className="px-4 py-2 rounded-xl bg-forest-800 hover:bg-forest-900 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+                    >
+                      <span>{testingWebhook ? 'جاري الإرسال...' : '⚡ تجربة إرسال طلب اختبار للـ Webhook'}</span>
+                    </button>
+                    {webhookTestStatus && (
+                      <span className={`text-[11px] font-bold ${webhookTestStatus.includes('✓') ? 'text-emerald-700' : 'text-rose-600'}`}>
+                        {webhookTestStatus}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </div>
 

@@ -156,8 +156,12 @@ export interface StoreSettings {
     admins?: AdminUser[]; // Sync carrier for Supabase JSONB
     logoUrl?: string; // Sync carrier for Supabase JSONB
     automationWebhookUrl?: string; // Sync carrier for Supabase JSONB
+    telegramBotToken?: string; // Sync carrier for Supabase JSONB
+    telegramChatId?: string; // Sync carrier for Supabase JSONB
   };
-  automationWebhookUrl?: string; // AI Automation Webhook URL (Make.com / n8n / Zapier / Telegram bot / WhatsApp)
+  automationWebhookUrl?: string; // AI Automation Webhook URL (Make.com / n8n / Zapier / Custom Webhooks)
+  telegramBotToken?: string; // Telegram Bot API Token from @BotFather
+  telegramChatId?: string; // Telegram Chat ID or Group/Channel ID
   siteContent?: SiteContentSettings;
 }
 

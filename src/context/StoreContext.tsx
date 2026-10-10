@@ -376,6 +376,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               freeShippingThreshold: Number(data.free_shipping_threshold),
               shippingRates: data.shipping_rates || DEFAULT_SETTINGS.shippingRates,
               automationWebhookUrl: data.shipping_rates?.automationWebhookUrl || prev.automationWebhookUrl || '',
+              telegramBotToken: data.shipping_rates?.telegramBotToken || prev.telegramBotToken || '',
+              telegramChatId: data.shipping_rates?.telegramChatId || prev.telegramChatId || '',
               adminPin: data.admin_pin || '1331',
               siteContent: prev.siteContent || DEFAULT_SETTINGS.siteContent,
             };
@@ -765,11 +767,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       admins: adminsToPersist,
       logoUrl: newSettings.logoUrl,
       automationWebhookUrl: newSettings.automationWebhookUrl || newSettings.shippingRates?.automationWebhookUrl || '',
+      telegramBotToken: newSettings.telegramBotToken || newSettings.shippingRates?.telegramBotToken || '',
+      telegramChatId: newSettings.telegramChatId || newSettings.shippingRates?.telegramChatId || '',
     };
     const settingsToSave: StoreSettings = {
       ...newSettings,
       adminUsers: adminsToPersist,
       automationWebhookUrl: newSettings.automationWebhookUrl || newSettings.shippingRates?.automationWebhookUrl || '',
+      telegramBotToken: newSettings.telegramBotToken || newSettings.shippingRates?.telegramBotToken || '',
+      telegramChatId: newSettings.telegramChatId || newSettings.shippingRates?.telegramChatId || '',
       shippingRates: shippingWithLogoAndAdmins,
     };
     setSettings(settingsToSave);
@@ -951,6 +957,52 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }).catch(err => console.warn('Automation webhook trigger error:', err));
       } catch (err) {
         console.warn('Automation webhook call exception:', err);
+      }
+    }
+
+    // Optional Direct Telegram Bot Notification
+    const botToken = settings.telegramBotToken || settings.shippingRates?.telegramBotToken;
+    const chatId = settings.telegramChatId || settings.shippingRates?.telegramChatId;
+    if (botToken && chatId && botToken.trim() && chatId.trim()) {
+      try {
+        const paymentLabel = 
+          newOrder.paymentMethod === 'instapay' ? 'انستاباي (InstaPay)' :
+          newOrder.paymentMethod === 'vodafone_cash' ? 'فودافون كاش (Vodafone Cash)' :
+          'الدفع عند الاستلام (COD)';
+
+        const itemsList = newOrder.items
+          .map((item, idx) => `▫️ *${idx + 1}. ${item.name}* (${item.selectedSize}) × ${item.quantity} ➔ ${(item.price * item.quantity).toLocaleString('ar-EG')} ج.م`)
+          .join('\n');
+
+        const messageText = `👑 *طلب جديد من متجر ORO PURO للعطور!* 👑
+━━━━━━━━━━━━━━━
+🆔 *رقم الطلب:* \`#${newOrder.id}\`
+👤 *اسم العميل:* ${newOrder.customerName}
+📱 *رقم الهاتف:* \`${newOrder.phone}\`${newOrder.alternatePhone ? `\n📱 *هاتف بديل:* \`${newOrder.alternatePhone}\`` : ''}
+📍 *المحافظة:* ${newOrder.governorate}
+🏠 *العنوان:* ${newOrder.cityAddress}
+${newOrder.notes ? `📝 *ملاحظات التوصيل:* ${newOrder.notes}\n` : ''}━━━━━━━━━━━━━━━
+🛍️ *تفاصيل العطور المطلوبة:*
+${itemsList}
+
+━━━━━━━━━━━━━━━
+💰 *المجموع الفرعي:* ${newOrder.subtotal.toLocaleString('ar-EG')} ج.م
+🚚 *مصاريف الشحن:* ${newOrder.shippingFee === 0 ? 'مجاني 🎉' : `${newOrder.shippingFee.toLocaleString('ar-EG')} ج.م`}
+💎 *الإجمالي النهائي:* *${newOrder.total.toLocaleString('ar-EG')} ج.م*
+💳 *طريقة الدفع:* ${paymentLabel}
+⏰ *الوقت:* ${new Date().toLocaleDateString('ar-EG')} - ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+
+        fetch(`https://api.telegram.org/bot${botToken.trim()}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId.trim(),
+            text: messageText,
+            parse_mode: 'Markdown',
+          })
+        }).catch(err => console.warn('Telegram send notification error:', err));
+      } catch (err) {
+        console.warn('Telegram notification exception:', err);
       }
     }
 
