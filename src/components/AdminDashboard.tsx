@@ -2034,6 +2034,54 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
+            {/* SECTION: AI Automation & Notifications (Webhooks) */}
+            <div className="pt-6 border-t border-slate-200">
+              <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E8E2D8] space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h4 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-forest-700" />
+                      <span>الربط التلقائي والإشعارات الفورية (AI Automation & Webhooks)</span>
+                    </h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      اربط لوحة التحكم بأي نظام أوتوميشن ذكي (Make.com أو n8n أو Telegram Bot أو WhatsApp API) لتلقي إشعار فوري عند كل طلب جديد
+                    </p>
+                  </div>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
+                    جاهز للربط ⚡
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    رابط الـ Webhook الخاص بنظام الأوتوميشن (Make / n8n / Zapier / Custom API)
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://hook.eu2.make.com/... أو https://n8n.example.com/webhook/..."
+                    value={settingsForm.automationWebhookUrl || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, automationWebhookUrl: e.target.value })}
+                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-mono text-left text-slate-900 focus:outline-none focus:border-forest-700"
+                    dir="ltr"
+                  />
+                  <div className="mt-2 text-[11px] text-slate-600 bg-white/80 p-3 rounded-xl border border-slate-200 space-y-1.5">
+                    <p className="font-bold text-forest-800 flex items-center gap-1">
+                      <span>💡 كيف يعمل الربط التلقائي؟</span>
+                    </p>
+                    <p>
+                      1. بمجرد قيام أي عميل بتأكيد طلبه، يظهر الطلب في <strong>لوحة التحكم</strong> وقاعدة البيانات فوراً دون تحويله إلى واتساب.
+                    </p>
+                    <p>
+                      2. إذا قمت بوضع رابط Webhook هنا، سيقوم النظام تلقائياً وبشكل فوري بإرسال بيانات الطلب (الاسم، الهاتف، المحافظة، العنوان، العطور المطلوبة، الإجمالي) إلى نظامك ليرسل لك إشعاراً على <strong>تليجرام أو واتساب</strong>.
+                    </p>
+                    <p>
+                      3. يمكنك أيضاً ربط قاعدة بيانات Supabase مباشرة من <strong>Database Webhooks</strong> على جدول <code>orders</code>.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <button
               type="submit"
               className="btn-forest px-8 py-3 rounded-xl text-sm font-bold shadow-sm"

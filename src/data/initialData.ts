@@ -78,7 +78,9 @@ export const DEFAULT_SETTINGS: StoreSettings = {
     upperEgypt: 75,
     admins: DEFAULT_ADMIN_USERS,
     logoUrl: '/images/logo.png',
+    automationWebhookUrl: '',
   },
+  automationWebhookUrl: '',
   siteContent: {
     announcementText: 'شحن مجاني عند طلب عطرين + عينة نيش فاخرة هدية | حق المعاينة والتجربة ورش الزجاجة قبل دفع جنيه واحد!',
     announcementBadge: 'عرض اليوم الحصري',

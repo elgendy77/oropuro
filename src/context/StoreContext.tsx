@@ -375,7 +375,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               instapayAccountName: data.instapay_account_name,
               freeShippingThreshold: Number(data.free_shipping_threshold),
               shippingRates: data.shipping_rates || DEFAULT_SETTINGS.shippingRates,
-              adminPin: data.admin_pin || '1234',
+              automationWebhookUrl: data.shipping_rates?.automationWebhookUrl || prev.automationWebhookUrl || '',
+              adminPin: data.admin_pin || '1331',
               siteContent: prev.siteContent || DEFAULT_SETTINGS.siteContent,
             };
           });
@@ -408,6 +409,64 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           setOrders(mapped);
         }
       });
+
+    // Realtime Orders Subscription for instant admin alerts
+    const ordersChannel = supabase
+      .channel('realtime_orders')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload: any) => {
+        if (payload.eventType === 'INSERT') {
+          const o = payload.new;
+          const newOrder: Order = {
+            id: o.id,
+            customerName: o.customer_name,
+            phone: o.phone,
+            alternatePhone: o.alternate_phone,
+            governorate: o.governorate,
+            cityAddress: o.city_address,
+            notes: o.notes,
+            items: o.items || [],
+            subtotal: Number(o.subtotal),
+            shippingFee: Number(o.shipping_fee),
+            total: Number(o.total),
+            paymentMethod: o.payment_method,
+            status: o.status,
+            createdAt: o.created_at,
+          };
+          setOrders(prev => {
+            if (prev.some(existing => existing.id === newOrder.id)) return prev;
+            return [newOrder, ...prev];
+          });
+        } else if (payload.eventType === 'UPDATE') {
+          const o = payload.new;
+          setOrders(prev => prev.map(existing => existing.id === o.id ? {
+            ...existing,
+            status: o.status,
+            customerName: o.customer_name,
+            phone: o.phone,
+            alternatePhone: o.alternate_phone,
+            governorate: o.governorate,
+            cityAddress: o.city_address,
+            notes: o.notes,
+            items: o.items || existing.items,
+            subtotal: Number(o.subtotal),
+            shippingFee: Number(o.shipping_fee),
+            total: Number(o.total),
+            paymentMethod: o.payment_method,
+          } : existing));
+        } else if (payload.eventType === 'DELETE') {
+          const o = payload.old;
+          if (o?.id) {
+            setOrders(prev => prev.filter(existing => existing.id !== o.id));
+          }
+        }
+      })
+      .subscribe();
+
+    return () => {
+      if (supabase && ordersChannel) {
+        supabase.removeChannel(ordersChannel);
+      }
+    };
   }, []);
 
   // Navigation and Modals state
@@ -705,10 +764,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ...newSettings.shippingRates,
       admins: adminsToPersist,
       logoUrl: newSettings.logoUrl,
+      automationWebhookUrl: newSettings.automationWebhookUrl || newSettings.shippingRates?.automationWebhookUrl || '',
     };
     const settingsToSave: StoreSettings = {
       ...newSettings,
       adminUsers: adminsToPersist,
+      automationWebhookUrl: newSettings.automationWebhookUrl || newSettings.shippingRates?.automationWebhookUrl || '',
       shippingRates: shippingWithLogoAndAdmins,
     };
     setSettings(settingsToSave);
@@ -860,6 +921,37 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }]).then(({ error }) => {
         if (error) console.error('Supabase createOrder error:', error);
       });
+    }
+
+    // Optional Automation / Webhook trigger (Make.com, n8n, Zapier, Telegram/WhatsApp bot)
+    const targetWebhook = settings.automationWebhookUrl || settings.shippingRates?.automationWebhookUrl;
+    if (targetWebhook && targetWebhook.trim().startsWith('http')) {
+      try {
+        fetch(targetWebhook.trim(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'order.created',
+            orderId: newOrder.id,
+            customerName: newOrder.customerName,
+            phone: newOrder.phone,
+            alternatePhone: newOrder.alternatePhone || '',
+            governorate: newOrder.governorate,
+            cityAddress: newOrder.cityAddress,
+            notes: newOrder.notes || '',
+            items: newOrder.items,
+            subtotal: newOrder.subtotal,
+            shippingFee: newOrder.shippingFee,
+            total: newOrder.total,
+            paymentMethod: newOrder.paymentMethod,
+            status: newOrder.status,
+            createdAt: newOrder.createdAt,
+            storeName: settings.storeName,
+          })
+        }).catch(err => console.warn('Automation webhook trigger error:', err));
+      } catch (err) {
+        console.warn('Automation webhook call exception:', err);
+      }
     }
 
     return newOrder;

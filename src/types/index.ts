@@ -155,7 +155,10 @@ export interface StoreSettings {
     upperEgypt: number;
     admins?: AdminUser[]; // Sync carrier for Supabase JSONB
     logoUrl?: string; // Sync carrier for Supabase JSONB
+    automationWebhookUrl?: string; // Sync carrier for Supabase JSONB
   };
+  automationWebhookUrl?: string; // AI Automation Webhook URL (Make.com / n8n / Zapier / Telegram bot / WhatsApp)
   siteContent?: SiteContentSettings;
 }
+
 

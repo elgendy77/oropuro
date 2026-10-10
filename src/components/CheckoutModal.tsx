@@ -91,55 +91,8 @@ export const CheckoutModal: React.FC = () => {
       colors: ['#047857', '#D4AF37', '#10B981', '#F5ECCF'],
     });
 
-    // Generate WhatsApp Invoice Message
-    const paymentLabel = 
-      paymentMethod === 'instapay' ? 'انستاباي (InstaPay)' :
-      paymentMethod === 'vodafone_cash' ? 'محفظة فودافون كاش' :
-      'الدفع عند الاستلام (COD)';
-
-    const itemsSummary = cart
-      .map(
-        (item, idx) =>
-          `${idx + 1}. *${item.name}*\n   الماركة: ${item.brand}\n   الحجم: ${item.selectedSize} × ${item.quantity}\n   السعر: ${(item.price * item.quantity).toLocaleString('ar-EG')} ج.م`
-      )
-      .join('\n\n');
-
-    const whatsappMessage = `✨ *طلب جديد من متجر ORO PURO للعطور* ✨
---------------------------------
-👑 *رقم الطلب:* #${order.id}
-👤 *اسم العميل:* ${customerName}
-📱 *رقم الموبايل:* ${phone}${alternatePhone ? `\n📱 *رقم بديل:* ${alternatePhone}` : ''}
-📍 *المحافظة:* ${governorate}
-🏠 *العنوان:* ${cityAddress}
-${notes ? `📝 *ملاحظات التوصيل:* ${notes}\n` : ''}--------------------------------
-🛍️ *تفاصيل العطور:*
-${itemsSummary}
-
---------------------------------
-💰 *المجموع الفرعي:* ${cartSubtotal.toLocaleString('ar-EG')} ج.م
-🚚 *مصاريف الشحن:* ${shippingFee === 0 ? 'مجاني (عرض الشحن المجاني)' : `${shippingFee.toLocaleString('ar-EG')} ج.م`}
-💎 *الإجمالي الكلي:* ${total.toLocaleString('ar-EG')} ج.م
-💳 *طريقة الدفع المختارة:* ${paymentLabel}
---------------------------------
-${
-  paymentMethod === 'instapay'
-    ? `⚠️ *يرجى إرفاق صورة إشعار تحويل انستاباي لحساب:* ${settings.instapayAddress}`
-    : paymentMethod === 'vodafone_cash'
-    ? `⚠️ *يرجى إرفاق صورة إشعار تحويل فودافون كاش لرقم:* ${settings.vodafoneCashNumber}`
-    : '🚚 الدفع كاش عند استلام ومعاينة الطرد'
-}
-
-شكراً لاختياركم ORO PURO!`;
-
     // Clear cart
     clearCart();
-
-    // Clean phone number for WhatsApp link
-    const cleanWhatsapp = (settings?.whatsappNumber || '201012345678').replace(/[^0-9]/g, '');
-    const whatsappUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(whatsappMessage)}`;
-
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -368,8 +321,8 @@ ${
 
                   <p className="text-[11px] text-purple-800 dark:text-purple-300 pt-1 border-t border-purple-200 dark:border-purple-800">
                     {language === 'ar' 
-                      ? '💡 بمجرد الضغط على تأكيد الطلب، ستفتح محادثة واتساب لإرفاق صورة التحويل وتأكيد الشحن فوراً.' 
-                      : '💡 Once confirmed, a WhatsApp chat will open to send transfer screenshot and confirm order.'}
+                      ? '💡 بمجرد الضغط على تأكيد الطلب، سيتم تسجيل طلبك مباشرة في لوحة التحكم وتجهيز شحنتك فوراً.' 
+                      : '💡 Once confirmed, your order will be sent to our dashboard and dispatched promptly.'}
                   </p>
                 </div>
               )}
@@ -397,8 +350,8 @@ ${
 
                   <p className="text-[11px] text-red-800 dark:text-red-300 pt-1 border-t border-red-200 dark:border-red-800">
                     {language === 'ar' 
-                      ? '💡 حوّل المبلغ إلى رقم المحفظة، وعند الضغط على تأكيد الطلب ستفتح محادثة واتساب لتأكيد الشحن فوراً.' 
-                      : '💡 Transfer amount to the wallet number, then confirm to open WhatsApp chat and proceed.'}
+                      ? '💡 حوّل المبلغ إلى رقم المحفظة ثم اضغط تأكيد الطلب لتسجيله في النظام وتجهيز شحنتك فوراً.' 
+                      : '💡 Transfer amount to the wallet number and confirm to register your order immediately.'}
                   </p>
                 </div>
               )}
@@ -467,52 +420,80 @@ ${
           </form>
         ) : (
           /* Success Screen */
-          <div className="p-8 sm:p-12 text-center space-y-6">
+          <div className="p-6 sm:p-10 text-center space-y-6">
             <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
               <Check className="w-10 h-10 stroke-[2.5]" />
             </div>
 
             <div>
-              <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-forest-50 dark:bg-gold-500/10 text-forest-800 dark:text-gold-400 border border-forest-200 dark:border-gold-500/30">
-                {language === 'ar' ? 'رقم الطلب:' : 'Order ID:'} #{createdOrder?.id}
+              <span className="inline-block text-xs font-mono font-bold px-3.5 py-1.5 rounded-full bg-forest-50 dark:bg-gold-500/10 text-forest-800 dark:text-gold-400 border border-forest-200 dark:border-gold-500/30">
+                {language === 'ar' ? 'رقم الطلب المؤكد:' : 'Order ID:'} #{createdOrder?.id}
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-3 mb-2">
                 {t('checkoutSuccessTitle')}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
+              <p className="text-sm text-slate-600 dark:text-slate-300 max-w-lg mx-auto leading-relaxed">
                 {language === 'ar' 
-                  ? 'شكراً لاختيارك متجر ORO PURO. تم إرسال تفاصيل الفاتورة وجاري تجهيز عطورك الفاخرة للشحن فوراً.' 
-                  : 'Thank you for choosing ORO PURO. Your invoice was generated and luxury bottles are being prepared for dispatch.'}
+                  ? 'تم استلام طلبك بنجاح وحفظه في لوحة التحكم! جاري مراجعة الطلب وتجهيز عطورك الملكية للشحن السريع فوراً.' 
+                  : 'Your order has been received and logged in our store dashboard! Your perfumes are being prepared for rapid dispatch.'}
               </p>
             </div>
 
-            {/* Quick WhatsApp Re-open button */}
-            <div className="p-4 rounded-2xl bg-[#FAF7F2] dark:bg-[#1A2234] border border-[#E8E2D8] dark:border-[#2A364F] max-w-md mx-auto text-xs space-y-3">
-              <p className="text-slate-600 dark:text-slate-400">
-                {language === 'ar' 
-                  ? 'إذا لم تفتح محادثة واتساب تلقائياً، يمكنك فتحها الآن بضغطة زر لتأكيد تفاصيل الطلب:' 
-                  : 'If WhatsApp did not open automatically, tap below to confirm your order:'}
-              </p>
-              <a
-                href={`https://wa.me/${(settings?.whatsappNumber || '201012345678').replace(/[^0-9]/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold py-2.5 rounded-xl transition-all shadow-md"
-              >
-                <span>{language === 'ar' ? 'فتح محادثة واتساب المتجر' : 'Open WhatsApp Chat'}</span>
-              </a>
+            {/* Order Details Card */}
+            {createdOrder && (
+              <div className="bg-[#FAF7F2] dark:bg-[#1A2234] border border-[#E8E2D8] dark:border-[#2A364F] rounded-2xl p-4 sm:p-5 text-right text-xs max-w-lg mx-auto space-y-3 shadow-xs">
+                <div className="border-b border-slate-200 dark:border-[#2A364F] pb-2.5 flex justify-between items-center">
+                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                    {language === 'ar' ? 'ملخص بيانات الشحنة' : 'Shipment Summary'}
+                  </span>
+                  <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                    {language === 'ar' ? 'طلب جديد مؤكد' : 'Confirmed'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600 dark:text-slate-300">
+                  <p><span className="font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'العميل:' : 'Customer:'}</span> {createdOrder.customerName}</p>
+                  <p><span className="font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'الهاتف:' : 'Phone:'}</span> <span className="font-mono" dir="ltr">{createdOrder.phone}</span></p>
+                  <p className="sm:col-span-2"><span className="font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'العنوان:' : 'Address:'}</span> {createdOrder.cityAddress} - {createdOrder.governorate}</p>
+                  <p><span className="font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'طريقة الدفع:' : 'Payment:'}</span> {
+                    createdOrder.paymentMethod === 'instapay' ? (language === 'ar' ? 'تحويل انستاباي' : 'InstaPay') :
+                    createdOrder.paymentMethod === 'vodafone_cash' ? (language === 'ar' ? 'محفظة فودافون كاش' : 'Vodafone Cash') :
+                    (language === 'ar' ? 'دفع عند الاستلام (COD)' : 'Cash on Delivery')
+                  }</p>
+                  <p><span className="font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'الإجمالي:' : 'Total:'}</span> <span className="font-bold text-forest-800 dark:text-gold-400 font-sans text-sm">{createdOrder.total.toLocaleString()} {t('currency')}</span></p>
+                </div>
+
+                {/* Items Ordered */}
+                {createdOrder.items && createdOrder.items.length > 0 && (
+                  <div className="pt-2 border-t border-slate-200 dark:border-[#2A364F] space-y-1.5">
+                    <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">{language === 'ar' ? 'العطور المطلوبة:' : 'Ordered Items:'}</p>
+                    {createdOrder.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                        <span>{item.name} ({item.selectedSize}) × {item.quantity}</span>
+                        <span className="font-mono font-bold">{(item.price * item.quantity).toLocaleString()} {t('currency')}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reassurance Notice */}
+            <div className="p-3.5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-950 dark:text-emerald-200 max-w-lg mx-auto flex items-center justify-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>{language === 'ar' ? 'حق المعاينة وتجربة العطر بالكامل مكفول عند الاستلام لضمان ثقتك التامة.' : 'Inspection and spray testing right fully guaranteed before acceptance.'}</span>
             </div>
 
-            <div>
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={() => {
                   setIsCheckoutOpen(false);
                   setStep('form');
                 }}
-                className="btn-forest px-8 py-3 rounded-full text-sm font-bold"
+                className="btn-forest px-8 py-3.5 rounded-full text-sm font-bold shadow-md hover:scale-105 transition-all"
               >
-                {language === 'ar' ? 'العودة للتسوق' : 'Back to Shopping'}
+                {language === 'ar' ? 'العودة للتسوق ومتابعة المتجر' : 'Continue Shopping'}
               </button>
             </div>
           </div>
