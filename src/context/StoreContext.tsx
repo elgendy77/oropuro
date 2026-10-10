@@ -7,6 +7,7 @@ import {
   productToComparisonItem, 
   type PerfumeComparisonItem 
 } from '../data/fragranticaDatabase';
+import { translations, type Language, type Theme } from '../utils/translations';
 
 export type ActiveView = 'store' | 'admin' | 'comparison' | 'advisor' | 'contact';
 
@@ -65,11 +66,80 @@ interface StoreContextType {
   // Review actions
   addReview: (productId: string, userName: string, rating: number, comment: string) => void;
   getProductReviews: (productId: string) => Review[];
+  // Language & Theme
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  toggleLanguage: () => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  toggleTheme: () => void;
+  t: (key: keyof typeof translations.ar) => string;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Language state (Persisted in localStorage)
+  const [language, setLanguageState] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem('oro_puro_language');
+      if (saved === 'ar' || saved === 'en') return saved;
+    } catch {}
+    return 'ar';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem('oro_puro_language', lang);
+    } catch {}
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'ar' ? 'en' : 'ar');
+  };
+
+  // Theme state (Persisted in localStorage)
+  const [theme, setThemeState] = useState<Theme>(() => {
+    try {
+      const saved = localStorage.getItem('oro_puro_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {}
+    return 'light';
+  });
+
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem('oro_puro_theme', newTheme);
+    } catch {}
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  useEffect(() => {
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [language, theme]);
+
+  const t = (key: keyof typeof translations.ar): string => {
+    return translations[language]?.[key] || translations.ar[key] || (key as string);
+  };
+
   // 1. Products
   const [products, setProducts] = useState<Product[]>(() => {
     // Clear legacy caches to prevent stale product pricing or missing categories
@@ -871,6 +941,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateOrderStatus,
         addReview,
         getProductReviews,
+        language,
+        setLanguage,
+        toggleLanguage,
+        theme,
+        setTheme,
+        toggleTheme,
+        t,
       }}
     >
       {children}

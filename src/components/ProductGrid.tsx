@@ -15,7 +15,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   onClearSearch,
   onSelectSearchKeyword
 }) => {
-  const { products, loadDemoProducts, setActiveView, setIsComparisonOpen, comparisonItems, settings } = useStore();
+  const { products, loadDemoProducts, setActiveView, setIsComparisonOpen, comparisonItems, settings, language, t } = useStore();
   const [selectedGender, setSelectedGender] = useState<string>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
@@ -123,14 +123,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       
       {/* Section Header */}
       <div className="flex flex-col items-center text-center mb-8 sm:mb-10">
-        <div className="flex items-center gap-2 text-amber-900 font-black text-xs uppercase tracking-widest mb-2 bg-amber-50 border border-amber-300 px-3.5 sm:px-4 py-1.5 rounded-full shadow-xs">
-          <span>{customContent?.collectionBadge || 'التشكيلة الشبابية الأكثر مبيعاً والأعلى تقييماً ★★★★★'}</span>
+        <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black text-xs uppercase tracking-widest mb-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50 px-3.5 sm:px-4 py-1.5 rounded-full shadow-xs">
+          <span>{language === 'en' ? t('collectionBadge') : (customContent?.collectionBadge || t('collectionBadge'))}</span>
         </div>
-        <h2 className="text-2xl sm:text-5xl font-black text-slate-950 tracking-tight">
-          {customContent?.collectionTitle || 'عطور الحضور الطاغي • ثبات 48 ساعة يتحدى الغسيل'}
+        <h2 className="text-2xl sm:text-5xl font-black text-slate-950 dark:text-slate-100 tracking-tight">
+          {language === 'en' ? t('collectionTitle') : (customContent?.collectionTitle || t('collectionTitle'))}
         </h2>
-        <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-xl font-bold leading-relaxed px-2">
-          {customContent?.collectionSubtitle || 'زيوت عطرية أصلية 100% مستوردة من كبرى دور العطور بتركيزات Extrait نادرة. يحق لك فتح الشحنة وتجربة ورش العطر في وجود المندوب قبل دفع أي مليم.'}
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2 max-w-xl font-bold leading-relaxed px-2">
+          {language === 'en' ? t('collectionSubtitle') : (customContent?.collectionSubtitle || t('collectionSubtitle'))}
         </p>
         <div className="w-16 h-1 bg-amber-400 rounded-full mt-3 sm:mt-4" />
       </div>
@@ -199,33 +199,33 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <div className="max-w-2xl text-right">
             <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
               <span className="bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[11px] sm:text-xs font-black px-3.5 py-1 sm:py-1.5 rounded-full uppercase tracking-wider inline-block shadow-sm border border-rose-300">
-                القسم النسائي الملكي • سحر الأنوثة والجاذبية 🌸
+                {t('womenBannerBadge')}
               </span>
               <span className="text-[10px] sm:text-[11px] px-2.5 py-0.5 sm:py-1 rounded-full bg-white/10 text-rose-200 border border-white/20 font-bold">
-                {products.filter(p => p.gender === 'women').length} عطر نسائي فاخر
+                {products.filter(p => p.gender === 'women').length} {language === 'en' ? 'Luxury Fragrances' : 'عطر نسائي فاخر'}
               </span>
             </div>
 
             <h3 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-2 leading-snug drop-shadow-md">
-              أرقى باقات العطور النسائية العالمية في مكان واحد
+              {t('womenBannerTitle')}
             </h3>
             <p className="text-xs sm:text-base text-rose-100/90 font-medium leading-relaxed drop-shadow-xs">
-              توليفات زهرية، سكرية، وباودرية مفعمة بالرقة والنعومة والفوحان الساحر (ديور، شانيل، سان لوران، مارلي ديلينا، توم فورد). زيوت نقية بثبات 48 ساعة يتحدى الغسيل مع حق فتح الشحنة ورش وتجربة العطر في وجود المندوب قبل دفع أي مليم.
+              {t('womenBannerSubtitle')}
             </p>
 
             {/* Micro Highlights */}
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-2.5 sm:pt-3">
               <span className="text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1 rounded-lg bg-black/40 border border-rose-300/30 text-rose-200 font-bold">
-                🌸 زهور الورد والفاوانيا
+                🌸 {language === 'en' ? 'Rose & Peony Accords' : 'زهور الورد والفاوانيا'}
               </span>
               <span className="text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1 rounded-lg bg-black/40 border border-rose-300/30 text-rose-200 font-bold">
-                🍯 الفانيليا والبرالين
+                🍯 {language === 'en' ? 'Vanilla & Praline' : 'الفانيليا والبرالين'}
               </span>
               <span className="text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1 rounded-lg bg-black/40 border border-rose-300/30 text-rose-200 font-bold">
-                👑 عطور النيش والسهرات
+                👑 {language === 'en' ? 'Niche & Evening Classics' : 'عطور النيش والسهرات'}
               </span>
               <span className="text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1 rounded-lg bg-black/40 border border-rose-300/30 text-rose-200 font-bold">
-                🎁 عينة نيش هدية مع كل عطرين
+                🎁 {language === 'en' ? 'Free Niche Sample with 2 Bottles' : 'عينة نيش هدية مع كل عطرين'}
               </span>
             </div>
           </div>
@@ -240,7 +240,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               }}
               className="w-full sm:w-auto text-center px-6 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-rose-400 via-pink-400 to-rose-300 hover:from-rose-300 hover:to-pink-300 text-slate-950 font-black text-xs sm:text-sm shadow-xl hover:scale-105 transition-all cursor-pointer border border-rose-200 flex items-center justify-center gap-2"
             >
-              <span>تصفح العطور النسائية الآن</span>
+              <span>{t('womenBannerCta')}</span>
               <span>🌸</span>
             </button>
           </div>
@@ -249,43 +249,43 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
       {/* 3 Trust Features Badges from Admin CMS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8 sm:mb-10">
-        <div className="p-4 rounded-2xl bg-white border border-[#E8E2D8] flex items-center gap-3 shadow-2xs">
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#121722] border border-[#E8E2D8] dark:border-[#1E2638] flex items-center gap-3 shadow-2xs">
           <span className="text-2xl">✨</span>
           <div>
-            <h4 className="text-xs font-black text-slate-900">{customContent?.trustFeature1Title || 'حق التجربة قبل الدفع'}</h4>
-            <p className="text-[11px] text-slate-500">{customContent?.trustFeature1Desc || 'افتح الشحنة ورش وجرب ثبات وفوحان العطر مع المندوب'}</p>
+            <h4 className="text-xs font-black text-slate-900 dark:text-slate-100">{language === 'en' ? t('trust1Title') : (customContent?.trustFeature1Title || t('trust1Title'))}</h4>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">{language === 'en' ? t('trust1Desc') : (customContent?.trustFeature1Desc || t('trust1Desc'))}</p>
           </div>
         </div>
-        <div className="p-4 rounded-2xl bg-white border border-[#E8E2D8] flex items-center gap-3 shadow-2xs">
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#121722] border border-[#E8E2D8] dark:border-[#1E2638] flex items-center gap-3 shadow-2xs">
           <span className="text-2xl">⚡</span>
           <div>
-            <h4 className="text-xs font-black text-slate-900">{customContent?.trustFeature2Title || 'شحن سريع لكافة المحافظات'}</h4>
-            <p className="text-[11px] text-slate-500">{customContent?.trustFeature2Desc || 'توصيل مباشر من مقرنا بالإسكندرية إلى باب بيتك'}</p>
+            <h4 className="text-xs font-black text-slate-900 dark:text-slate-100">{language === 'en' ? t('trust2Title') : (customContent?.trustFeature2Title || t('trust2Title'))}</h4>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">{language === 'en' ? t('trust2Desc') : (customContent?.trustFeature2Desc || t('trust2Desc'))}</p>
           </div>
         </div>
-        <div className="p-4 rounded-2xl bg-white border border-[#E8E2D8] flex items-center gap-3 shadow-2xs">
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#121722] border border-[#E8E2D8] dark:border-[#1E2638] flex items-center gap-3 shadow-2xs">
           <span className="text-2xl">💎</span>
           <div>
-            <h4 className="text-xs font-black text-slate-900">{customContent?.trustFeature3Title || 'أعلى درجات التركيز والثبات'}</h4>
-            <p className="text-[11px] text-slate-500">{customContent?.trustFeature3Desc || 'زيوت أصلية مركزة تدوم على الملابس لأيام'}</p>
+            <h4 className="text-xs font-black text-slate-900 dark:text-slate-100">{language === 'en' ? t('trust3Title') : (customContent?.trustFeature3Title || t('trust3Title'))}</h4>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">{language === 'en' ? t('trust3Desc') : (customContent?.trustFeature3Desc || t('trust3Desc'))}</p>
           </div>
         </div>
       </div>
 
       {/* Filter and Sort Toolbar */}
       {products.length > 0 && (
-        <div id="perfumes-catalog" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-[#E8E2D8]">
+        <div id="perfumes-catalog" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-[#E8E2D8] dark:border-[#1E2638]">
           
           {/* Gender & Category Tabs - Smooth touch scroll on mobile */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 sm:pb-0 sm:flex-wrap w-full sm:w-auto -mx-2 px-2 sm:mx-0 sm:px-0 scroll-smooth">
             {[
-              { id: 'all', label: 'جميع العطور' },
-              { id: 'women', label: 'قسم العطور النسائية 🌸' },
-              { id: 'men', label: 'رجالي 👔' },
-              { id: 'unisex', label: 'للجنسين ونيش ✨' },
-              { id: 'featured', label: 'الأكثر طلباً 🔥' },
-              { id: 'fresh', label: 'صيفي ومنعش 🌊' },
-              { id: 'beast', label: 'سهرات وثبات عالي 🌙' },
+              { id: 'all', label: t('catAll') },
+              { id: 'women', label: t('catWomen') },
+              { id: 'men', label: t('catMen') },
+              { id: 'unisex', label: t('catUnisex') },
+              { id: 'featured', label: t('catFeatured') },
+              { id: 'fresh', label: t('catFresh') },
+              { id: 'beast', label: t('catBeast') },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -295,7 +295,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     ? tab.id === 'women'
                       ? 'bg-rose-700 text-white shadow-md'
                       : 'btn-forest shadow-sm'
-                    : 'bg-white text-slate-700 border border-[#E0D7C9] hover:border-forest-700 hover:text-forest-800'
+                    : 'bg-white dark:bg-[#121722] text-slate-700 dark:text-slate-200 border border-[#E0D7C9] dark:border-[#222C3E] hover:border-forest-700 dark:hover:border-gold-500'
                 }`}
               >
                 {tab.label}
@@ -305,12 +305,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             {/* Compare Perfumes Button - Next to Tabs */}
             <button
               onClick={() => setIsComparisonOpen(true)}
-              className="shrink-0 whitespace-nowrap px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-amber-50 to-gold-50 border border-gold-400 text-gold-900 hover:bg-gold-100 hover:border-gold-500 flex items-center gap-1.5 shadow-sm hover:scale-105 active:scale-95"
-              title="مقارنة العطور والهرم العطري وقوة الثبات والفوحان ومناسب لأي مناسبة"
+              className="shrink-0 whitespace-nowrap px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-amber-50 to-gold-50 dark:from-amber-950/40 dark:to-gold-950/40 border border-gold-400 dark:border-gold-600/60 text-gold-900 dark:text-gold-300 hover:bg-gold-100 dark:hover:bg-gold-900/40 flex items-center gap-1.5 shadow-sm hover:scale-105 active:scale-95"
+              title="مقارنة العطور والهرم العطري"
             >
-              <span>مقارنة العطور</span>
+              <span>{t('compareAction')}</span>
               {comparisonItems.length > 0 && (
-                <span className="w-5 h-5 rounded-full bg-forest-800 text-white text-[10px] font-black flex items-center justify-center font-mono">
+                <span className="w-5 h-5 rounded-full bg-forest-800 dark:bg-gold-500 text-white dark:text-slate-950 text-[10px] font-black flex items-center justify-center font-mono">
                   {comparisonItems.length}
                 </span>
               )}
@@ -325,9 +325,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 <select
                   value={selectedBrand}
                   onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full sm:w-auto bg-white border border-[#E0D7C9] text-slate-700 text-xs rounded-xl px-3 py-2 pr-7 focus:outline-none focus:border-forest-700 cursor-pointer appearance-none shadow-sm font-medium"
+                  className="w-full sm:w-auto bg-white dark:bg-[#121722] border border-[#E0D7C9] dark:border-[#222C3E] text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2 pr-7 focus:outline-none focus:border-forest-700 dark:focus:border-gold-500 cursor-pointer appearance-none shadow-sm font-medium"
                 >
-                  <option value="all">كل الماركات</option>
+                  <option value="all">{t('allBrands')}</option>
                   {brands.map(b => (
                     <option key={b} value={b}>{b}</option>
                   ))}
@@ -341,12 +341,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="w-full sm:w-auto bg-white border border-[#E0D7C9] text-slate-700 text-xs rounded-xl px-3 py-2 pr-7 focus:outline-none focus:border-forest-700 cursor-pointer appearance-none shadow-sm font-medium"
+                className="w-full sm:w-auto bg-white dark:bg-[#121722] border border-[#E0D7C9] dark:border-[#222C3E] text-slate-700 dark:text-slate-200 text-xs rounded-xl px-3 py-2 pr-7 focus:outline-none focus:border-forest-700 dark:focus:border-gold-500 cursor-pointer appearance-none shadow-sm font-medium"
               >
-                <option value="featured">المقترح والمميز</option>
-                <option value="price-asc">السعر: من الأقل للأعلى</option>
-                <option value="price-desc">السعر: من الأعلى للأقل</option>
-                <option value="rating">الأعلى تقييماً</option>
+                <option value="featured">{t('sortFeatured')}</option>
+                <option value="price-asc">{t('sortPriceAsc')}</option>
+                <option value="price-desc">{t('sortPriceDesc')}</option>
+                <option value="rating">{t('sortRating')}</option>
               </select>
               <ArrowUpDown className="w-3.5 h-3.5 text-gold-600 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>

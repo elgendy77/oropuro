@@ -14,6 +14,10 @@
     color: #1E293B;
     font-family: 'Cairo', 'Tajawal', sans-serif;
   }
+  html.dark body {
+    background-color: #0A0D14;
+    color: #F8FAFC;
+  }
 }
 
 /* Custom Gold Gradient Text */

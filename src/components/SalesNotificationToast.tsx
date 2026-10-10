@@ -99,11 +99,11 @@ export const SalesNotificationToast: React.FC = () => {
 
   return (
     <div 
-      className="fixed bottom-20 left-3 sm:left-4 z-40 max-w-[270px] sm:max-w-sm bg-white/95 backdrop-blur-md border-2 border-[#E2D9CC] rounded-2xl p-2.5 sm:p-3 shadow-2xl transition-all duration-500 animate-slide-up flex items-center gap-2.5 sm:gap-3 font-arabic"
+      className="fixed bottom-20 left-3 sm:left-4 z-40 max-w-[270px] sm:max-w-sm bg-white/95 dark:bg-[#121722]/95 backdrop-blur-md border-2 border-[#E2D9CC] dark:border-[#1E2638] rounded-2xl p-2.5 sm:p-3 shadow-2xl transition-all duration-500 animate-slide-up flex items-center gap-2.5 sm:gap-3 font-arabic"
       dir="rtl"
     >
       {/* Product Image */}
-      <div className="w-12 h-12 rounded-xl bg-[#FAF8F5] p-1 border border-slate-200 shrink-0 flex items-center justify-center">
+      <div className="w-12 h-12 rounded-xl bg-[#FAF8F5] dark:bg-[#1A2234] p-1 border border-slate-200 dark:border-[#2A364F] shrink-0 flex items-center justify-center">
         <img 
           src={currentSale.image} 
           alt={currentSale.perfume} 
@@ -115,18 +115,18 @@ export const SalesNotificationToast: React.FC = () => {
       <div className="flex-1 min-w-0 text-right">
         <div className="flex items-center gap-1.5 mb-0.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-          <span className="text-[11px] font-black text-slate-900 truncate">
+          <span className="text-[11px] font-black text-slate-900 dark:text-white truncate">
             {currentSale.buyer} • {currentSale.city}
           </span>
         </div>
 
-        <p className="text-xs font-bold text-forest-800 truncate mb-0.5">
+        <p className="text-xs font-bold text-forest-800 dark:text-gold-400 truncate mb-0.5">
           اشترى للتو: {currentSale.perfume}
         </p>
 
-        <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
+        <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium">
           <span>{currentSale.timeAgo}</span>
-          <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+          <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
             طلب مؤكد ✓
           </span>
         </div>
@@ -138,7 +138,7 @@ export const SalesNotificationToast: React.FC = () => {
           setIsVisible(false);
           setIsDismissed(true);
         }}
-        className="text-slate-400 hover:text-slate-700 p-1 text-xs self-start"
+        className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 text-xs self-start"
         title="إغلاق الإشعار"
       >
         ✕

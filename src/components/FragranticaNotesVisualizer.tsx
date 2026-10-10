@@ -35,16 +35,16 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
   return (
     <div className="space-y-6">
       {/* 1. Main Accords Bar Chart (الأكوردات العطرية الأساسية - Fragrantica Style) */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E8E2D8] shadow-xs">
+      <div className="bg-white dark:bg-[#1A2234] p-5 rounded-2xl border border-[#E8E2D8] dark:border-[#2A364F] shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h4 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
+            <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5">
               <span>الأكوردات العطرية الرئيسية</span>
-              <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <span className="text-[10px] font-mono text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                 Fragrantica Chart
               </span>
             </h4>
-            <p className="text-[11px] text-slate-500 mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
               التوزيع البياني الدقيق للهوية والنغمات الطاغية في زجاجة العطر
             </p>
           </div>
@@ -76,12 +76,12 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
       </div>
 
       {/* 2. Visual Fragrance Notes Evolution & Pyramid (تدرج النوتات بمرور الوقت) */}
-      <div className="bg-gradient-to-b from-[#FAF7F2] to-white p-5 rounded-2xl border border-[#E8E2D8] shadow-xs">
+      <div className="bg-gradient-to-b from-[#FAF7F2] to-white dark:from-[#1A2234] dark:to-[#121722] p-5 rounded-2xl border border-[#E8E2D8] dark:border-[#2A364F] shadow-xs">
         <div className="mb-4">
-          <h4 className="text-sm font-black text-slate-900 flex items-center gap-2">
+          <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
             <span>تدرج النوتات العطرية (الهرم التفاعلي)</span>
           </h4>
-          <p className="text-[11px] text-slate-500 mt-0.5">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             كيف يتدرج العطر على بشرتك وملابسك من لحظة الرش وحتى ثبات القاعدة
           </p>
         </div>
@@ -89,13 +89,13 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
         <div className="space-y-4 relative">
           {/* Top Notes Layer */}
           {topNotes.length > 0 && (
-            <div className="p-3.5 rounded-xl bg-white/80 border border-amber-200/60 shadow-2xs relative">
+            <div className="p-3.5 rounded-xl bg-white/80 dark:bg-[#121722]/80 border border-amber-200/60 dark:border-amber-500/30 shadow-2xs relative">
               <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
-                <span className="text-xs font-black text-amber-800 flex items-center gap-1.5">
+                <span className="text-xs font-black text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-amber-500 inline-block animate-pulse"></span>
                   الافتتاحية (Top Notes)
                 </span>
-                <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                   0 - 30 دقيقة • الرذاذ المنعش الأول
                 </span>
               </div>
@@ -103,7 +103,7 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
                 {topNotes.map((note, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-1.5 bg-amber-50/70 border border-amber-200/80 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800 hover:border-amber-400 transition-colors"
+                    className="flex items-center gap-1.5 bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-700/50 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-amber-400 transition-colors"
                   >
                     <span className="text-base">{note.icon}</span>
                     <span>{note.name}</span>
@@ -115,20 +115,20 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
 
           {/* Transition Connector Arrow */}
           <div className="flex items-center justify-center -my-2 z-10 relative">
-            <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-[10px] text-slate-500 font-bold shadow-2xs">
+            <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-500 dark:text-slate-400 font-bold shadow-2xs">
               ↓
             </div>
           </div>
 
           {/* Heart Notes Layer */}
           {heartNotes.length > 0 && (
-            <div className="p-3.5 rounded-xl bg-white/80 border border-emerald-200/60 shadow-2xs relative">
+            <div className="p-3.5 rounded-xl bg-white/80 dark:bg-[#121722]/80 border border-emerald-200/60 dark:border-emerald-500/30 shadow-2xs relative">
               <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
-                <span className="text-xs font-black text-emerald-800 flex items-center gap-1.5">
+                <span className="text-xs font-black text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
                   قلب العطر (Heart Notes)
                 </span>
-                <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                   1 - 5 ساعات • جوهر وشخصية العطر
                 </span>
               </div>
@@ -136,7 +136,7 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
                 {heartNotes.map((note, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-1.5 bg-emerald-50/70 border border-emerald-200/80 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800 hover:border-emerald-400 transition-colors"
+                    className="flex items-center gap-1.5 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-700/50 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-emerald-400 transition-colors"
                   >
                     <span className="text-base">{note.icon}</span>
                     <span>{note.name}</span>
@@ -148,20 +148,20 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
 
           {/* Transition Connector Arrow */}
           <div className="flex items-center justify-center -my-2 z-10 relative">
-            <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-[10px] text-slate-500 font-bold shadow-2xs">
+            <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-500 dark:text-slate-400 font-bold shadow-2xs">
               ↓
             </div>
           </div>
 
           {/* Base Notes Layer */}
           {baseNotes.length > 0 && (
-            <div className="p-3.5 rounded-xl bg-white/80 border border-yellow-300/80 shadow-2xs relative">
+            <div className="p-3.5 rounded-xl bg-white/80 dark:bg-[#121722]/80 border border-yellow-300/80 dark:border-yellow-500/30 shadow-2xs relative">
               <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
-                <span className="text-xs font-black text-yellow-900 flex items-center gap-1.5">
+                <span className="text-xs font-black text-yellow-900 dark:text-yellow-400 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-yellow-600 inline-block"></span>
                   قاعدة العطر (Base Notes)
                 </span>
-                <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                   6 - +14 ساعة • الثبات الأسطوري والعمق
                 </span>
               </div>
@@ -169,7 +169,7 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
                 {baseNotes.map((note, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-1.5 bg-yellow-50/70 border border-yellow-200/80 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800 hover:border-yellow-400 transition-colors"
+                    className="flex items-center gap-1.5 bg-yellow-50/70 dark:bg-yellow-950/40 border border-yellow-200/80 dark:border-yellow-700/50 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-yellow-400 transition-colors"
                   >
                     <span className="text-base">{note.icon}</span>
                     <span>{note.name}</span>
@@ -181,36 +181,36 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
         </div>
       </div>
 
-      {/* 3. Performance & Seasonality Breakdown (مؤشرات الثبات والفوحان والملاءمة) */}
+      {/* 3. Performance & Seasonality Breakdown */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Longevity & Sillage Gauges */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E8E2D8] space-y-3">
-          <h5 className="text-xs font-black text-slate-900">مؤشرات الأداء العطري</h5>
+        <div className="bg-white dark:bg-[#1A2234] p-4 rounded-2xl border border-[#E8E2D8] dark:border-[#2A364F] space-y-3">
+          <h5 className="text-xs font-black text-slate-900 dark:text-white">مؤشرات الأداء العطري</h5>
 
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="font-bold text-slate-700">ثبات العطر (Longevity):</span>
-              <span className="text-forest-800 font-black font-mono">طويل جداً (+12 ساعة)</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300">ثبات العطر (Longevity):</span>
+              <span className="text-forest-800 dark:text-gold-400 font-black font-mono">طويل جداً (+12 ساعة)</span>
             </div>
-            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
-              <div className="bg-forest-800 h-full rounded-full" style={{ width: '94%' }}></div>
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
+              <div className="bg-forest-800 dark:bg-gold-500 h-full rounded-full" style={{ width: '94%' }}></div>
             </div>
           </div>
 
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="font-bold text-slate-700">الفوحان والانتشار (Sillage):</span>
-              <span className="text-amber-700 font-black font-mono">قوي ومسيطر (مترين)</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300">الفوحان والانتشار (Sillage):</span>
+              <span className="text-amber-700 dark:text-amber-400 font-black font-mono">قوي ومسيطر (مترين)</span>
             </div>
-            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
               <div className="bg-amber-500 h-full rounded-full" style={{ width: '90%' }}></div>
             </div>
           </div>
         </div>
 
         {/* Seasonality & Day/Night */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E8E2D8] space-y-3">
-          <h5 className="text-xs font-black text-slate-900">ملاءمة الفصول وأوقات الاستخدام</h5>
+        <div className="bg-white dark:bg-[#1A2234] p-4 rounded-2xl border border-[#E8E2D8] dark:border-[#2A364F] space-y-3">
+          <h5 className="text-xs font-black text-slate-900 dark:text-white">ملاءمة الفصول وأوقات الاستخدام</h5>
 
           {/* 4 Seasons Pills */}
           <div className="grid grid-cols-4 gap-1.5 text-center">
@@ -219,8 +219,8 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
                 key={idx}
                 className={`p-1.5 rounded-lg border text-center transition-all ${
                   s.score >= 80
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-950 font-black'
-                    : 'bg-slate-50 border-slate-200 text-slate-500'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200 font-black'
+                    : 'bg-slate-50 dark:bg-[#121722] border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
                 }`}
               >
                 <div className="text-sm">{s.icon}</div>
@@ -233,12 +233,12 @@ export const FragranticaNotesVisualizer: React.FC<FragranticaNotesVisualizerProp
           {/* Day vs Night Bar */}
           <div>
             <div className="flex justify-between text-[11px] mb-1 font-bold">
-              <span className="text-amber-800">نهاري: {dayPercent}%</span>
-              <span className="text-indigo-900">ليلي وسهرات: {nightPercent}%</span>
+              <span className="text-amber-800 dark:text-amber-400">نهاري: {dayPercent}%</span>
+              <span className="text-indigo-900 dark:text-indigo-300">ليلي وسهرات: {nightPercent}%</span>
             </div>
             <div className="w-full h-2 rounded-full overflow-hidden flex">
               <div className="bg-amber-400 h-full" style={{ width: `${dayPercent}%` }}></div>
-              <div className="bg-indigo-950 h-full" style={{ width: `${nightPercent}%` }}></div>
+              <div className="bg-indigo-950 dark:bg-indigo-700 h-full" style={{ width: `${nightPercent}%` }}></div>
             </div>
           </div>
         </div>

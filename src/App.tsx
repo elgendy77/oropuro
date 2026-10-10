@@ -51,7 +51,7 @@ const MainContent: React.FC = () => {
   }, [setActiveView]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-slate-800 font-arabic selection:bg-gold-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-[#0A0D14] text-slate-800 dark:text-slate-100 font-arabic selection:bg-gold-500 selection:text-white transition-colors duration-200">
       {/* High-Converting Scarcity Urgency Banner (Non-admin) */}
       {activeView !== 'admin' && <TopUrgencyBanner />}
 

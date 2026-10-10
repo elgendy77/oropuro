@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 
 export const TopUrgencyBanner: React.FC = () => {
-  const { setActiveView, settings } = useStore();
+  const { setActiveView, settings, language, t } = useStore();
   const [timeLeft, setTimeLeft] = useState({ hours: 3, minutes: 42, seconds: 19 });
 
   const content = settings.siteContent;
@@ -38,9 +38,10 @@ export const TopUrgencyBanner: React.FC = () => {
     }
   };
 
-  const badgeText = content?.announcementBadge || 'عرض اليوم الحصري';
-  const bannerText = content?.announcementText || 'شحن مجاني عند طلب عطرين + عينة نيش فاخرة هدية | حق المعاينة والتجربة ورش الزجاجة قبل دفع جنيه واحد!';
-  const timerLabel = content?.announcementTimerText || 'ينتهي خلال:';
+  const badgeText = language === 'en' ? t('bannerBadge') : (content?.announcementBadge || t('bannerBadge'));
+  const bannerText = language === 'en' ? t('bannerText') : (content?.announcementText || t('bannerText'));
+  const timerLabel = language === 'en' ? t('bannerTimerText') : (content?.announcementTimerText || t('bannerTimerText'));
+  const ctaText = t('bannerCta');
 
   return (
     <div className="bg-[#021F17] bg-gradient-to-r from-[#021F17] via-[#064E3B] to-[#021F17] text-white border-b border-amber-400/40 relative z-50 shadow-md select-none">
@@ -90,7 +91,7 @@ export const TopUrgencyBanner: React.FC = () => {
             onClick={handleScrollToOffers}
             className="text-[11px] font-black px-3.5 py-1 rounded-lg bg-gold-400 hover:bg-gold-300 text-slate-950 transition-all shadow-xs hover:scale-105 active:scale-95"
           >
-            اغتنم العرض الآن
+            {ctaText}
           </button>
         </div>
       </div>

@@ -29,7 +29,9 @@ export const HeroVideoSection: React.FC = () => {
     setIsComparisonOpen, 
     products, 
     setActiveProductForDetail,
-    settings
+    settings,
+    language,
+    t
   } = useStore();
 
   const customContent = settings.siteContent;
@@ -46,16 +48,16 @@ export const HeroVideoSection: React.FC = () => {
     {
       id: 'mist-video',
       type: 'video',
-      badge: customContent?.heroBadge || 'الذهب الخالص للعطور الأصلية • تركيز عالي وفوحان كاسح',
-      title: customContent?.heroTitle || 'العطر الذي يجعل الجميع يسألك: ما هذا العطر؟',
-      highlight: customContent?.heroHighlight || 'ما هذا العطر؟',
-      subtitle: customContent?.heroSubtitle || 'توليفات عطرية عالمية ساحرة تفرض هيبتك وتمنحك جاذبية استثنائية مع حق التجربة والمعاينة قبل الدفع!',
-      videoSrc: '/videos/perfume-mist.webm',
-      image: customContent?.heroImageUrl || '/images/hero-perfume-spray.jpg',
+      badge: language === 'en' ? t('heroBadge') : (customContent?.heroBadge || t('heroBadge')),
+      title: language === 'en' ? t('heroTitle') : (customContent?.heroTitle || t('heroTitle')),
+      highlight: language === 'en' ? t('heroHighlight') : (customContent?.heroHighlight || t('heroHighlight')),
+      subtitle: language === 'en' ? t('heroSubtitle') : (customContent?.heroSubtitle || t('heroSubtitle')),
+      videoSrc: './videos/perfume-mist.webm',
+      image: customContent?.heroImageUrl || './images/hero-perfume-spray.jpg',
       accentColor: 'from-amber-500/30 to-gold-600/10',
-      primaryCtaText: customContent?.heroCtaText || 'اطلب الآن مع حق المعاينة',
+      primaryCtaText: language === 'en' ? t('heroPrimaryCta') : (customContent?.heroCtaText || t('heroPrimaryCta')),
       primaryCtaAction: 'scroll',
-      secondaryCtaText: customContent?.heroSecondaryCtaText || 'مستشار العطور الذكي',
+      secondaryCtaText: language === 'en' ? t('heroAdvisorCta') : (customContent?.heroSecondaryCtaText || t('heroAdvisorCta')),
       secondaryCtaAction: 'finder'
     },
     {
@@ -202,14 +204,14 @@ export const HeroVideoSection: React.FC = () => {
   const activeSlideData = slides[currentSlide];
 
   return (
-    <section className="relative w-full bg-[#FAF7F2] pt-2 sm:pt-4 pb-8 sm:pb-12 px-2 sm:px-4 lg:px-6 font-arabic">
+    <section className="relative w-full bg-[#FAF7F2] dark:bg-[#0A0D14] pt-2 sm:pt-4 pb-8 sm:pb-12 px-2 sm:px-4 lg:px-6 font-arabic transition-colors">
       <div 
         className="max-w-[1550px] w-full mx-auto"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         {/* Full-Width Slider Container with Beautiful Curvature */}
-        <div className="relative w-full h-[500px] sm:h-[580px] lg:h-[640px] rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-2xl border-2 border-[#E6DDD0] bg-black select-none">
+        <div className="relative w-full h-[500px] sm:h-[580px] lg:h-[640px] rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-2xl border-2 border-[#E6DDD0] dark:border-[#1E2638] bg-black select-none">
           
           {/* Slides Carousel */}
           {slides.map((slide, idx) => {
@@ -301,13 +303,13 @@ export const HeroVideoSection: React.FC = () => {
                   {/* High-Converting Risk-Reversal Strip */}
                   <div className="mt-4 sm:mt-6 flex flex-wrap items-center gap-2 sm:gap-5 text-[10px] sm:text-xs font-bold text-slate-200">
                     <span className="flex items-center gap-1.5 text-gold-300 bg-black/30 px-2 sm:px-2.5 py-1 rounded-full border border-gold-400/30 backdrop-blur-xs">
-                      <span>🛡️</span> حق المعاينة قبل الدفع
+                      <span>🛡️</span> {t('heroTrustInspect')}
                     </span>
                     <span className="flex items-center gap-1.5 text-emerald-300 bg-black/30 px-2 sm:px-2.5 py-1 rounded-full border border-emerald-400/30 backdrop-blur-xs">
-                      <span>⚡</span> ثبات 48 ساعة
+                      <span>⚡</span> {t('heroTrustLongLasting')}
                     </span>
                     <span className="hidden sm:flex items-center gap-1.5 text-slate-200 bg-black/30 px-2.5 py-1 rounded-full border border-white/20 backdrop-blur-xs">
-                      <span>🔄</span> استبدال فوري 14 يوماً
+                      <span>🔄</span> {t('heroTrustExchange')}
                     </span>
                   </div>
 
