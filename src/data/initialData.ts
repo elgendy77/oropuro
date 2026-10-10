@@ -35,9 +35,27 @@ export const DEFAULT_ADMIN_USERS = [
     id: 'admin_owner',
     name: 'المالك الرئيسي',
     username: 'admin',
-    password: '1234',
+    password: '1331',
     role: 'owner' as const,
     createdAt: '2026-10-01T00:00:00.000Z',
+    isActive: true,
+  },
+  {
+    id: 'admin_1791627868315',
+    name: 'Youssef',
+    username: 'youssef',
+    password: '1234',
+    role: 'manager' as const,
+    createdAt: '2026-10-10T10:24:28.315Z',
+    isActive: true,
+  },
+  {
+    id: 'admin_1791627879189',
+    name: 'karim',
+    username: 'karim',
+    password: '1234',
+    role: 'staff' as const,
+    createdAt: '2026-10-10T10:24:39.189Z',
     isActive: true,
   }
 ];
@@ -51,7 +69,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   instapayAddress: 'oropuro@instapay',
   instapayAccountName: 'Oro Puro Fragrances',
   freeShippingThreshold: 1200,
-  adminPin: '1234',
+  adminPin: '1331',
   adminUsers: DEFAULT_ADMIN_USERS,
   shippingRates: {
     cairoGiza: 45,

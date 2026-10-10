@@ -483,50 +483,31 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const loginAdmin = (usernameOrPin: string, password?: string): boolean => {
-    const trimmedInput = usernameOrPin.trim();
+    const trimmedInput = (usernameOrPin || '').trim().toLowerCase();
     const trimmedPass = (password || '').trim();
-    const masterPin = (settings.adminPin || '1234').trim();
 
-    // 1. If password is provided, try username + password match
-    if (trimmedPass) {
-      const user = adminUsers.find(
-        u => u.username.toLowerCase() === trimmedInput.toLowerCase() && u.password === trimmedPass && u.isActive
-      );
-      if (user) {
-        setIsAdminAuthenticated(true);
-        setCurrentAdminUser(user);
-        sessionStorage.setItem('oro_puro_admin_auth', 'true');
-        sessionStorage.setItem('oro_puro_current_admin', JSON.stringify(user));
-        setActiveView('admin');
-        return true;
-      }
+    // Both username and password are strictly required
+    if (!trimmedInput || !trimmedPass) {
+      return false;
     }
 
-    // 2. Direct Master PIN or (admin + Master PIN)
-    if (
-      trimmedInput === masterPin || 
-      (trimmedInput.toLowerCase() === 'admin' && trimmedPass === masterPin) ||
-      (!trimmedPass && adminUsers.some(u => u.password === trimmedInput && u.isActive))
-    ) {
-      const matched = adminUsers.find(u => u.password === trimmedInput && u.isActive) ||
-        adminUsers.find(u => u.role === 'owner') || {
-          id: 'admin_owner',
-          name: 'المالك الرئيسي',
-          username: 'admin',
-          password: masterPin,
-          role: 'owner' as const,
-          createdAt: new Date().toISOString(),
-          isActive: true,
-        };
+    // Must strictly match an existing active user in the database (adminUsers)
+    const user = adminUsers.find(
+      u => u.username.trim().toLowerCase() === trimmedInput && 
+           u.password.trim() === trimmedPass && 
+           u.isActive !== false
+    );
 
+    if (user) {
       setIsAdminAuthenticated(true);
-      setCurrentAdminUser(matched);
+      setCurrentAdminUser(user);
       sessionStorage.setItem('oro_puro_admin_auth', 'true');
-      sessionStorage.setItem('oro_puro_current_admin', JSON.stringify(matched));
+      sessionStorage.setItem('oro_puro_current_admin', JSON.stringify(user));
       setActiveView('admin');
       return true;
     }
 
+    // No bypasses allowed - strictly reject if username/password does not match database
     return false;
   };
 
@@ -703,13 +684,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Settings
   const updateSettings = (newSettings: StoreSettings) => {
-    const shippingWithLogo = {
+    // Ensure admins list is always preserved for Supabase persistence
+    const currentAdmins = (newSettings.adminUsers && newSettings.adminUsers.length > 0)
+      ? newSettings.adminUsers
+      : (newSettings.shippingRates?.admins && newSettings.shippingRates.admins.length > 0
+          ? newSettings.shippingRates.admins
+          : adminUsers);
+
+    // If adminPin changed, sync owner user's password to match
+    let adminsToPersist = currentAdmins;
+    if (newSettings.adminPin && newSettings.adminPin !== settings.adminPin) {
+      adminsToPersist = currentAdmins.map(u => u.role === 'owner' ? { ...u, password: newSettings.adminPin! } : u);
+      setAdminUsers(adminsToPersist);
+      try {
+        localStorage.setItem('oro_puro_admin_users', JSON.stringify(adminsToPersist));
+      } catch {}
+    }
+
+    const shippingWithLogoAndAdmins = {
       ...newSettings.shippingRates,
+      admins: adminsToPersist,
       logoUrl: newSettings.logoUrl,
     };
     const settingsToSave: StoreSettings = {
       ...newSettings,
-      shippingRates: shippingWithLogo,
+      adminUsers: adminsToPersist,
+      shippingRates: shippingWithLogoAndAdmins,
     };
     setSettings(settingsToSave);
 
@@ -725,14 +725,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         instapay_account_name: settingsToSave.instapayAccountName,
         free_shipping_threshold: settingsToSave.freeShippingThreshold,
         shipping_rates: settingsToSave.shippingRates,
-        admin_pin: settingsToSave.adminPin || '1234',
+        admin_pin: settingsToSave.adminPin || '1331',
       }).then(({ error }) => {
         if (error) console.error('Supabase updateSettings error:', error);
       });
     }
   };
 
-  // Multi-Admin Team Management
+  // Multi-Admin Team Management (Database Synced)
   const addAdminUser = (newAdmin: Omit<AdminUser, 'id' | 'createdAt'>) => {
     const created: AdminUser = {
       ...newAdmin,
@@ -741,23 +741,36 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
     const updated = [...adminUsers, created];
     setAdminUsers(updated);
-    localStorage.setItem('oro_puro_admin_users', JSON.stringify(updated));
+    try {
+      localStorage.setItem('oro_puro_admin_users', JSON.stringify(updated));
+    } catch {}
 
+    const updatedRates = {
+      ...settings.shippingRates,
+      admins: updated,
+    };
     const updatedSettings: StoreSettings = {
       ...settings,
       adminUsers: updated,
-      shippingRates: {
-        ...settings.shippingRates,
-        admins: updated,
-      },
+      shippingRates: updatedRates,
     };
-    updateSettings(updatedSettings);
+    setSettings(updatedSettings);
+
+    if (supabase) {
+      supabase.from('settings').update({
+        shipping_rates: updatedRates
+      }).eq('id', 'default').then(({ error }) => {
+        if (error) console.error('Supabase addAdminUser error:', error);
+      });
+    }
   };
 
   const updateAdminUser = (id: string, updatedFields: Partial<AdminUser>) => {
     const updated = adminUsers.map(u => (u.id === id ? { ...u, ...updatedFields } : u));
     setAdminUsers(updated);
-    localStorage.setItem('oro_puro_admin_users', JSON.stringify(updated));
+    try {
+      localStorage.setItem('oro_puro_admin_users', JSON.stringify(updated));
+    } catch {}
 
     if (currentAdminUser?.id === id) {
       const nextCurrent = { ...currentAdminUser, ...updatedFields };
@@ -765,15 +778,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       sessionStorage.setItem('oro_puro_current_admin', JSON.stringify(nextCurrent));
     }
 
+    const updatedRates = {
+      ...settings.shippingRates,
+      admins: updated,
+    };
     const updatedSettings: StoreSettings = {
       ...settings,
       adminUsers: updated,
-      shippingRates: {
-        ...settings.shippingRates,
-        admins: updated,
-      },
+      shippingRates: updatedRates,
     };
-    updateSettings(updatedSettings);
+    setSettings(updatedSettings);
+
+    if (supabase) {
+      supabase.from('settings').update({
+        shipping_rates: updatedRates
+      }).eq('id', 'default').then(({ error }) => {
+        if (error) console.error('Supabase updateAdminUser error:', error);
+      });
+    }
   };
 
   const deleteAdminUser = (id: string) => {
@@ -784,17 +806,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     const updated = adminUsers.filter(u => u.id !== id);
     setAdminUsers(updated);
-    localStorage.setItem('oro_puro_admin_users', JSON.stringify(updated));
+    try {
+      localStorage.setItem('oro_puro_admin_users', JSON.stringify(updated));
+    } catch {}
 
+    const updatedRates = {
+      ...settings.shippingRates,
+      admins: updated,
+    };
     const updatedSettings: StoreSettings = {
       ...settings,
       adminUsers: updated,
-      shippingRates: {
-        ...settings.shippingRates,
-        admins: updated,
-      },
+      shippingRates: updatedRates,
     };
-    updateSettings(updatedSettings);
+    setSettings(updatedSettings);
+
+    if (supabase) {
+      supabase.from('settings').update({
+        shipping_rates: updatedRates
+      }).eq('id', 'default').then(({ error }) => {
+        if (error) console.error('Supabase deleteAdminUser error:', error);
+      });
+    }
   };
 
   // Orders
